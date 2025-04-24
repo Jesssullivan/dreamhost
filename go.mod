@@ -1,4 +1,5 @@
-module github.com/jesssullivan/dreamhost
+module github.com/caddy-dns/dreamhost
+
 
 go 1.16
 
