@@ -3,6 +3,7 @@ module github.com/caddy-dns/dreamhost
 go 1.16
 
 require (
-	github.com/caddyserver/caddy/v2 v2.4.1
+	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/libdns/dreamhost v0.1.1
+	github.com/libdns/libdns v0.2.2
 )
