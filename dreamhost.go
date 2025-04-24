@@ -3,13 +3,12 @@ package dreamhost
 import (
 	"context"
 	"fmt"
-
-	"github.com/libdns/dreamhost"
 	"github.com/libdns/libdns"
 )
 
+// CompatProvider wraps the main Provider to ensure interface compatibility
 type CompatProvider struct {
-	*dreamhost.Provider
+	*Provider
 }
 
 // Make sure our CompatProvider implements these interfaces
@@ -36,18 +35,7 @@ func (p *CompatProvider) AppendRecords(ctx context.Context, zone string, records
 		return nil, fmt.Errorf("provider is nil")
 	}
 
-	fixedRecords := make([]libdns.Record, len(records))
-	for i, rec := range records {
-		fixedRecords[i] = libdns.Record{
-			ID:    rec.ID,
-			Type:  rec.Type,
-			Name:  rec.Name,
-			Value: rec.Value,
-			TTL:   rec.TTL,
-		}
-	}
-
-	return origProvider.AppendRecords(ctx, zone, fixedRecords)
+	return origProvider.AppendRecords(ctx, zone, records)
 }
 
 func (p *CompatProvider) SetRecords(ctx context.Context, zone string, records []libdns.Record) ([]libdns.Record, error) {
@@ -56,18 +44,7 @@ func (p *CompatProvider) SetRecords(ctx context.Context, zone string, records []
 		return nil, fmt.Errorf("provider is nil")
 	}
 
-	fixedRecords := make([]libdns.Record, len(records))
-	for i, rec := range records {
-		fixedRecords[i] = libdns.Record{
-			ID:    rec.ID,
-			Type:  rec.Type,
-			Name:  rec.Name,
-			Value: rec.Value,
-			TTL:   rec.TTL,
-		}
-	}
-
-	return origProvider.SetRecords(ctx, zone, fixedRecords)
+	return origProvider.SetRecords(ctx, zone, records)
 }
 
 func (p *CompatProvider) DeleteRecords(ctx context.Context, zone string, records []libdns.Record) ([]libdns.Record, error) {
@@ -76,16 +53,5 @@ func (p *CompatProvider) DeleteRecords(ctx context.Context, zone string, records
 		return nil, fmt.Errorf("provider is nil")
 	}
 
-	fixedRecords := make([]libdns.Record, len(records))
-	for i, rec := range records {
-		fixedRecords[i] = libdns.Record{
-			ID:    rec.ID,
-			Type:  rec.Type,
-			Name:  rec.Name,
-			Value: rec.Value,
-			TTL:   rec.TTL,
-		}
-	}
-
-	return origProvider.DeleteRecords(ctx, zone, fixedRecords)
+	return origProvider.DeleteRecords(ctx, zone, records)
 }
