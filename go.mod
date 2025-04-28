@@ -6,7 +6,7 @@ toolchain go1.24.2
 
 require (
 	github.com/caddyserver/caddy/v2 v2.10.0
-	github.com/libdns/dreamhost v0.1.1
+	github.com/jesssullivan/libdns-dreamhost v0.2.1
 )
 
 require (
@@ -52,5 +52,3 @@ require (
 	golang.org/x/tools v0.31.0 // indirect
 	google.golang.org/protobuf v1.35.1 // indirect
 )
-
-replace github.com/libdns/dreamhost => ../libdns-dreamhost

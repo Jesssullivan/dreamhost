@@ -3,6 +3,7 @@ package dreamhost
 import (
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
+	"github.com/jesssullivan/libdns-dreamhost"
 	"github.com/libdns/dreamhost"
 )
 
