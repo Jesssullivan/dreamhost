@@ -1,57 +1,70 @@
 package dreamhost
 
 import (
-	"context"
-	"fmt"
-	"github.com/libdns/libdns"
+	"github.com/caddyserver/caddy/v2"
+	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
+	"github.com/libdns/dreamhost"
 )
 
-// CompatProvider wraps the main Provider to ensure interface compatibility
-type CompatProvider struct {
-	*Provider
+// Provider lets Caddy read and manipulate DNS records hosted by this DNS provider.
+type Provider struct{ *dreamhost.Provider }
+
+func init() {
+	caddy.RegisterModule(Provider{})
 }
 
-// Make sure our CompatProvider implements these interfaces
+// CaddyModule returns the Caddy module information.
+func (Provider) CaddyModule() caddy.ModuleInfo {
+	return caddy.ModuleInfo{
+		ID:  "dns.providers.dreamhost",
+		New: func() caddy.Module { return &Provider{new(dreamhost.Provider)} },
+	}
+}
+
+// Provision sets up the module. Implements caddy.Provisioner.
+func (p *Provider) Provision(ctx caddy.Context) error {
+	p.Provider.APIKey = caddy.NewReplacer().ReplaceAll(p.Provider.APIKey, "")
+	return nil
+}
+
+// UnmarshalCaddyfile sets up the DNS provider from Caddyfile tokens. Syntax:
+//
+//	dreamhost {
+//	    api_key <api_key>
+//	}
+func (p *Provider) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
+	for d.Next() {
+		if d.NextArg() {
+			p.Provider.APIKey = d.Val()
+		}
+		if d.NextArg() {
+			return d.ArgErr()
+		}
+		for nesting := d.Nesting(); d.NextBlock(nesting); {
+			switch d.Val() {
+			case "api_key":
+				if p.Provider.APIKey != "" {
+					return d.Err("API key already set")
+				}
+				if d.NextArg() {
+					p.Provider.APIKey = d.Val()
+				}
+				if d.NextArg() {
+					return d.ArgErr()
+				}
+			default:
+				return d.Errf("unrecognized subdirective '%s'", d.Val())
+			}
+		}
+	}
+	if p.Provider.APIKey == "" {
+		return d.Err("missing API token")
+	}
+	return nil
+}
+
+// Interface guards
 var (
-	_ libdns.RecordGetter   = (*CompatProvider)(nil)
-	_ libdns.RecordAppender = (*CompatProvider)(nil)
-	_ libdns.RecordSetter   = (*CompatProvider)(nil)
-	_ libdns.RecordDeleter  = (*CompatProvider)(nil)
+	_ caddyfile.Unmarshaler = (*Provider)(nil)
+	_ caddy.Provisioner     = (*Provider)(nil)
 )
-
-func (p *CompatProvider) GetRecords(ctx context.Context, zone string) ([]libdns.Record, error) {
-	origProvider := p.Provider
-	if origProvider == nil {
-		return nil, fmt.Errorf("provider is nil")
-	}
-
-	records, err := origProvider.GetRecords(ctx, zone)
-	return records, err
-}
-
-func (p *CompatProvider) AppendRecords(ctx context.Context, zone string, records []libdns.Record) ([]libdns.Record, error) {
-	origProvider := p.Provider
-	if origProvider == nil {
-		return nil, fmt.Errorf("provider is nil")
-	}
-
-	return origProvider.AppendRecords(ctx, zone, records)
-}
-
-func (p *CompatProvider) SetRecords(ctx context.Context, zone string, records []libdns.Record) ([]libdns.Record, error) {
-	origProvider := p.Provider
-	if origProvider == nil {
-		return nil, fmt.Errorf("provider is nil")
-	}
-
-	return origProvider.SetRecords(ctx, zone, records)
-}
-
-func (p *CompatProvider) DeleteRecords(ctx context.Context, zone string, records []libdns.Record) ([]libdns.Record, error) {
-	origProvider := p.Provider
-	if origProvider == nil {
-		return nil, fmt.Errorf("provider is nil")
-	}
-
-	return origProvider.DeleteRecords(ctx, zone, records)
-}

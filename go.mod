@@ -1,15 +1,10 @@
-module github.com/jesssullivan/dreamhost
+module github.com/caddy-dns/dreamhost
 
-go 1.24
-
-toolchain go1.24.2
+go 1.16g
 
 require (
-	github.com/adamantal/go-dreamhost v0.1.1
-	github.com/libdns/libdns v0.2.3
+	github.com/caddyserver/caddy/v2 v2.10.1
+	github.com/libdns/dreamhost v0.1.1
 )
 
-require (
-	github.com/google/go-querystring v1.1.0 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
-)
+replace github.com/libdns/dreamhost => github.com/Jesssullivan/libdns-dreamhost v0.2.0
